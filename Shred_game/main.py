@@ -163,10 +163,10 @@ def _file_exists(name: str) -> bool:
 MUSIC_END_EVENT = pg.USEREVENT + 42
 MAIN_MUSIC = [
     "assets/music/Shred.ogg",
-    "assets/music/Jester.ogg",
+    "assets/music/Field.ogg",
+    "assets/music/Find-Change.ogg",
 ]
 CHALLENGE_MUSIC = [
-    "assets/music/Black_Hole.ogg",
     "assets/music/Countdown.ogg",
 ]
 
