@@ -1069,6 +1069,11 @@ class Ground:
         self.smite_nodes = set()
         self.smite_cd = {}
 
+        # Challenge-mode bomb traps are queued here before exploding.
+        # Some reverted versions of the file reference this list later in
+        # game_session(), so it must always exist on Ground.
+        self.primed_bombs = []
+
     def generate_block(self, bx, by):
         if (bx, by) in self.block_types:
             return self.block_types[(bx, by)]
@@ -2407,7 +2412,6 @@ async def tutorial_menu():
         {"title": "Powerup Blocks", "body": "Powerup blocks can help or hurt. Reveal and Money Boost are great for profit. Heavy Pickaxe can blow open a path. Blindness and Confusion are risky. They make runs feel less predictable."},
         {"title": "Modifiers and Challenge", "body": "Every run uses a modifier. Classic is steady. Challenge adds hazards, more lives, a target payout, and bigger pressure. Later modifiers like Ore Surge and Powerup Storm unlock through progression."},
         {"title": "Questlines and Bounties", "body": "Questlines are your long-term progression and gate the next world. Run Bounties are short goals inside a single run. They pay bonus cash and rewards fast, so even short sessions feel exciting."},
-        {"title": "Finish!", "body": "Press Enter to start a Run."},
     ]
     page = 0
     while True:
@@ -2476,27 +2480,7 @@ layout_edit_mode = False
 cheat_mode = False
 
 SHOP_ANCHOR_START = "# -- SHOP_ANCHORS START --"
-SHOP_ANCHORS = {
-    "title": (-10000, -10000),
-    "label_1": (182, 246),
-    "label_2": (500, 245),
-    "label_3": (820, 245),
-    "bar_1": (80, 275, 200, 12),
-    "bar_2": (400, 275, 200, 12),
-    "bar_3": (720, 275, 200, 12),
-    "lvl_1": (-1000, -1000),
-    "lvl_2": (-1000, -1000),
-    "lvl_3": (-1000, -1000),
-    "cost_1": (182, 585),
-    "cost_2": (500, 585),
-    "cost_3": (825, 585),
-    "money": (500, 640),
-    "skins_btn": pg.Rect(0, 45, 160, 52),
-    "tutorial_btn": pg.Rect(14, 101, 160, 44),
-    "world": (860, 50),
-    "challenge_center": (880, 90),
-}
-# -- SHOP_ANCHORS END --"
+SHOP_ANCHOR_END = "# -- SHOP_ANCHORS END --"
 SHOP_LAYOUT_JSON = resource_path("shop_layout.json")
 
 def _rect_to_tuple(v):
@@ -3236,8 +3220,8 @@ quest_progress = {w: {q["key"]: 0 for q in qs} for w, qs in QUESTLINE_DATA.items
 questline_complete = {w: False for w in QUESTLINE_DATA}
 challenge_target_cleared = {"normal": False, "hell": False, "heaven": False}
 
-SKINS["quest walker"] = {"name": "Quest walker", "color": (120, 255, 170)}
-skins_unlocked.setdefault("quest walker", False)
+SKINS["questwalker"] = {"name": "Questwalker", "color": (120, 255, 170)}
+skins_unlocked.setdefault("questwalker", False)
 
 RUN_EVENT = {"name": None, "timer": 0, "ping_block": None}
 BOUNTY_BANNER = {"timer": 0, "text": "", "subtext": "", "cash": 0.0}
@@ -3391,7 +3375,7 @@ def update_world_unlocks():
     MODIFIER_UNLOCKS['powerup_storm'] = unlocks['heaven']
     MODIFIER_UNLOCKS['bounty_hunter'] = all(questline_complete.values())
     if all(questline_complete.values()):
-        skins_unlocked['quest walker'] = True
+        skins_unlocked['questwalker'] = True
     if all(challenge_target_cleared.values()):
         skins_unlocked['completionist'] = True
 
@@ -3605,7 +3589,7 @@ async def worlds_menu(total_money):
 
 async def skins_menu():
     global selected_skin
-    order = ['base', 'survivor', 'completionist', 'quest walker']
+    order = ['base', 'survivor', 'completionist', 'questwalker']
     while True:
         events = pg.event.get(); music.update(events)
         clicked = None
@@ -4226,7 +4210,7 @@ async def game_session(total_money):
     if all(challenge_target_cleared.values()):
         skins_unlocked['completionist'] = True
     if all(questline_complete.values()):
-        skins_unlocked['quest walker'] = True
+        skins_unlocked['questwalker'] = True
     update_world_unlocks()
     title = 'GAME OVER' if died else ('RUN COMPLETE' if ended_by_timer else 'RUN ENDED')
     mode_name = ' + '.join(active_modifier_names()) if active_modifier_names() else MODIFIER_INFO[get_core_modifier()]['name']
