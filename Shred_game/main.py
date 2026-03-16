@@ -3220,8 +3220,8 @@ quest_progress = {w: {q["key"]: 0 for q in qs} for w, qs in QUESTLINE_DATA.items
 questline_complete = {w: False for w in QUESTLINE_DATA}
 challenge_target_cleared = {"normal": False, "hell": False, "heaven": False}
 
-SKINS["questwalker"] = {"name": "Questwalker", "color": (120, 255, 170)}
-skins_unlocked.setdefault("questwalker", False)
+SKINS["quest walker"] = {"name": "Quest walker", "color": (120, 255, 170)}
+skins_unlocked.setdefault("quest walker", False)
 
 RUN_EVENT = {"name": None, "timer": 0, "ping_block": None}
 BOUNTY_BANNER = {"timer": 0, "text": "", "subtext": "", "cash": 0.0}
@@ -3375,7 +3375,7 @@ def update_world_unlocks():
     MODIFIER_UNLOCKS['powerup_storm'] = unlocks['heaven']
     MODIFIER_UNLOCKS['bounty_hunter'] = all(questline_complete.values())
     if all(questline_complete.values()):
-        skins_unlocked['questwalker'] = True
+        skins_unlocked['quest walker'] = True
     if all(challenge_target_cleared.values()):
         skins_unlocked['completionist'] = True
 
@@ -3589,7 +3589,7 @@ async def worlds_menu(total_money):
 
 async def skins_menu():
     global selected_skin
-    order = ['base', 'survivor', 'completionist', 'questwalker']
+    order = ['base', 'survivor', 'completionist', 'quest walker']
     while True:
         events = pg.event.get(); music.update(events)
         clicked = None
@@ -4210,7 +4210,7 @@ async def game_session(total_money):
     if all(challenge_target_cleared.values()):
         skins_unlocked['completionist'] = True
     if all(questline_complete.values()):
-        skins_unlocked['questwalker'] = True
+        skins_unlocked['quest walker'] = True
     update_world_unlocks()
     title = 'GAME OVER' if died else ('RUN COMPLETE' if ended_by_timer else 'RUN ENDED')
     mode_name = ' + '.join(active_modifier_names()) if active_modifier_names() else MODIFIER_INFO[get_core_modifier()]['name']
